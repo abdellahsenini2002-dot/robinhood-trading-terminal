@@ -1,0 +1,19 @@
+{
+  "name": "robinhood-trading-terminal",
+  "version": "1.0.0",
+  "description": "AI-powered game-based trading terminal for Robinhood Chain",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node src/index.js",
+    "sim": "MODE=sim node src/index.js",
+    "live": "MODE=live node src/index.js",
+    "test": "node src/test.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.0",
+    "viem": "^2.0.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {}
+}
