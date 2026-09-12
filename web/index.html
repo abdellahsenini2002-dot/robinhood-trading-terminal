@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Robinhood Trading Terminal</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-left">
+        <h1>🏦 ROBINHOOD TRADING TERMINAL</h1>
+      </div>
+      <div class="nav-right">
+        <button id="modeToggle" class="btn btn-mode">Mode: SIM</button>
+        <button id="settingsBtn" class="btn btn-settings">⚙️ Settings</button>
+      </div>
+    </nav>
+
+    <div class="container">
+      <!-- Left: Village (Game) -->
+      <div class="village-section">
+        <h2>Village</h2>
+        <div id="village" class="village-canvas"></div>
+        <div class="village-info">
+          <p>Tick: <span id="currentTick">0</span> / <span id="maxTicks">7000</span></p>
+          <p>Phase: <span id="currentPhase">REST</span></p>
+        </div>
+      </div>
+
+      <!-- Middle: Controls -->
+      <div class="controls-section">
+        <div class="forge-panel">
+          <h2>⚒️ FORGE</h2>
+          <div class="agent-selector">
+            <label>Select Agent:</label>
+            <select id="agentSelect">
+              <option value="0">SCOUT (agent_0)</option>
+              <option value="1">SNIPER (agent_1)</option>
+              <option value="2">WHALE (agent_2)</option>
+              <option value="3">ARB (agent_3)</option>
+            </select>
+          </div>
+
+          <div class="stat-slider">
+            <label>PTN (Thinking): <span id="ptnValue">4</span></label>
+            <input type="range" id="ptnSlider" min="0" max="12" value="4">
+          </div>
+
+          <div class="stat-slider">
+            <label>SPD (Speed): <span id="spdValue">3</span></label>
+            <input type="range" id="spdSlider" min="1" max="10" value="3">
+          </div>
+
+          <div class="stat-slider">
+            <label>RSK (Risk): <span id="rskValue">3</span></label>
+            <input type="range" id="rskSlider" min="1" max="10" value="3">
+          </div>
+
+          <div class="stat-slider">
+            <label>GAS (Gas): <span id="gasValue">3</span></label>
+            <input type="range" id="gasSlider" min="1" max="10" value="3">
+          </div>
+
+          <div class="stat-slider">
+            <label>Level: <span id="levelValue">0</span></label>
+            <input type="range" id="levelSlider" min="0" max="10" value="0">
+          </div>
+
+          <div class="cost-display">
+            <h3>Cost Analysis</h3>
+            <table>
+              <tr><td>Model:</td><td id="costModel">OPUS 5</td></tr>
+              <tr><td>Context:</td><td id="costContext">48 candles</td></tr>
+              <tr><td>Thinking:</td><td id="costThinking">512 tokens</td></tr>
+              <tr><td>Cost/Decision:</td><td id="costDecision">$0.0183</td></tr>
+              <tr><td>Daily Burn:</td><td id="costDaily">$48.15</td></tr>
+              <tr><td>Position Size:</td><td id="costPosition">0.0118 ETH</td></tr>
+            </table>
+          </div>
+
+          <div class="boosts">
+            <h3>Boosts</h3>
+            <label><input type="checkbox" id="boostOverclock"> Overclock (3x speed)</label>
+            <label><input type="checkbox" id="boostAlphaFeed"> Alpha Feed (2x context)</label>
+            <label><input type="checkbox" id="boostLeverage"> Leverage (2x size)</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Dashboard -->
+      <div class="dashboard-section">
+        <!-- Stats Panel -->
+        <div class="panel stats-panel">
+          <h2>📊 Agent Stats</h2>
+          <div id="agentStats" class="stats-grid"></div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="panel leaderboard-panel">
+          <h2>🏆 Leaderboard</h2>
+          <table id="leaderboard" class="leaderboard-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Agent</th>
+                <th>Type</th>
+                <th>P&L</th>
+                <th>Trades</th>
+                <th>Win Rate</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboardBody"></tbody>
+          </table>
+        </div>
+
+        <!-- Trade History -->
+        <div class="panel history-panel">
+          <h2>📈 Recent Trades</h2>
+          <div id="tradeHistory" class="trade-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Control Bar -->
+    <div class="control-bar">
+      <button id="startBtn" class="btn btn-primary">▶️ Start Backtest</button>
+      <button id="pauseBtn" class="btn btn-secondary" disabled>⏸️ Pause</button>
+      <button id="resetBtn" class="btn btn-secondary">🔄 Reset</button>
+      <button id="exportBtn" class="btn btn-secondary">📥 Export</button>
+      <span id="status" class="status-text">Ready</span>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Settings</h2>
+          <button class="close-btn" onclick="closeSettings()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="setting-group">
+            <label>Mode:</label>
+            <select id="modeSelect">
+              <option value="sim">Simulator (Free)</option>
+              <option value="live">Live Trading (API Required)</option>
+            </select>
+          </div>
+          <div class="setting-group">
+            <label>Anthropic API Key:</label>
+            <input type="password" id="apiKey" placeholder="sk-ant-...">
+          </div>
+          <div class="setting-group">
+            <label>Base Trade Size (ETH):</label>
+            <input type="number" id="baseSize" value="0.01" step="0.001">
+          </div>
+          <div class="setting-group">
+            <label>Seed:</label>
+            <input type="number" id="seedInput" value="42" step="1">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" onclick="saveSettings()">Save</button>
+          <button class="btn btn-secondary" onclick="closeSettings()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../src/config.js" type="module"></script>
+  <script src="../src/agent.js" type="module"></script>
+  <script src="../src/market.js" type="module"></script>
+  <script src="../src/brain.js" type="module"></script>
+  <script src="../src/engine.js" type="module"></script>
+  <script src="app.js" type="module"></script>
+</body>
+</html>
